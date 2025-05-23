@@ -7,18 +7,18 @@ interface Props {
 }
 
 export default function LeadCard({ lead, onAccept, onDecline }: Props) {
-  const firstLetter = lead.firstName.charAt(0).toUpperCase();
   const isAccepted = lead.status === "accepted";
+  const firstLetter = lead.firstName.charAt(0).toUpperCase();
 
   let formattedDate = "Invalid Date";
   try {
     formattedDate = new Date(lead.createdAt).toLocaleString("en-US", {
       month: "long",
       day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
-    });
+      hour12: true,
+    }).replace(",", "").replace("AM", "am").replace("PM", "pm");
   } catch {
     console.error("Erro ao formatar data:", lead.createdAt);
   }
@@ -31,36 +31,37 @@ export default function LeadCard({ lead, onAccept, onDecline }: Props) {
           {firstLetter}
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-semibold leading-tight">
-            {lead.firstName}
-          </h3>
+          <h3 className="text-base font-semibold leading-tight">{lead.firstName}</h3>
           <p className="text-xs text-gray-500">{formattedDate}</p>
         </div>
       </div>
 
-      {/* Location / Job info */}
-      <div className="text-sm text-gray-700 mb-1 flex flex-wrap gap-x-4 gap-y-1">
+      {/* Info */}
+      <div className="text-sm text-gray-700 flex flex-wrap gap-x-4 gap-y-1 mb-4">
         <span>📍 {lead.suburb}</span>
         <span>🧰 {lead.category}</span>
         <span>📄 Job ID: {lead.id}</span>
+        {isAccepted && (
+          <span className="text-gray-800">
+            <strong>${lead.price.toFixed(2)}</strong> Lead Invitation
+          </span>
+        )}
       </div>
 
       {/* Contact info (only if accepted) */}
       {isAccepted && (
-        <div className="text-sm text-orange-600 font-semibold mt-2 mb-2 flex flex-wrap gap-4">
+        <div className="text-sm text-orange-600 font-semibold mt-2 mb-4 flex flex-wrap gap-4">
           <span>📞 {lead.phone}</span>
           <span>✉️ {lead.email}</span>
         </div>
       )}
 
       {/* Description */}
-      <p className="text-sm text-gray-600 whitespace-pre-line mb-3">
-        {lead.description}
-      </p>
+      <p className="text-sm text-gray-600 whitespace-pre-line mb-5">{lead.description}</p>
 
       {/* Actions (only if not accepted) */}
-      {!isAccepted && onAccept && onDecline ? (
-        <div className="flex items-center justify-between">
+      {!isAccepted && onAccept && onDecline && (
+        <div className="flex items-center justify-left gap-4">
           <div className="space-x-2">
             <button
               onClick={() => onAccept(lead.id)}
@@ -78,10 +79,6 @@ export default function LeadCard({ lead, onAccept, onDecline }: Props) {
           <span className="text-gray-800 text-sm">
             <strong>${lead.price.toFixed(2)}</strong> Lead Invitation
           </span>
-        </div>
-      ) : (
-        <div className="text-gray-800 text-sm">
-          <strong>${lead.price.toFixed(2)}</strong> Lead Invitation
         </div>
       )}
     </div>
